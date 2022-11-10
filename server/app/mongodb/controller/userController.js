@@ -48,11 +48,10 @@ exports.loginUser = async (req, res) => {
           // access, refresh 토큰 발급
           refresh = await auth.refresh();
           access = await auth.access();
-          // DB에 유저의 refresh 토큰 저장
-          // await User.findByIdAndUpdate(result._id, {
-          //   refreshtoken: refresh,
-          // });
-          // redisClient.set(result._id, refresh);
+
+          // redis에서 유저의 이메일(key):refresh토큰(value)의 형태로 저장
+          redisClient.set(result.email, refresh);
+
           // 로그인 성공시 회원정보와 token 값 전달
           res.status(200).send({
             user: result,

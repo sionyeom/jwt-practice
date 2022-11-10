@@ -20,10 +20,8 @@ router.get("/get/:id", auth.auth, (req, res) => {
   let { id } = req.params;
 
   const user = User.findOne({ _id: id }).exec((err, user) => {
-    console.log(user);
+    // console.log(user);
   });
-
-  console.log(user);
 
   return res.status(200).json({});
 });

@@ -5,6 +5,7 @@ dotenv.config();
 
 const redisClient = redis.createClient({
   port: process.env.REDIS_PORT,
+  legacyMode: true,
 });
 
 redisClient.on("connect", () => console.log("Connected to Redis!"));

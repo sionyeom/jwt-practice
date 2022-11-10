@@ -26,6 +26,7 @@ exports.auth = (req, res, next) => {
   try {
     // 요청 헤더에 저장된 토큰(req.headers.authorization)과 비밀키를 사용하여 토큰을 req.decoded에 반환
     req.decoded = jwt.verify(req.headers.authorization, key);
+
     return next();
   } catch (error) {
     // 인증 실패
@@ -64,20 +65,22 @@ exports.refresh = () => {
   return jwt.sign({}, key, { expiresIn: "20m", issuer: "sion" });
 };
 
-exports.refreshVerify = async () => {
+exports.refreshVerify = async (token, userId, next) => {
   const getAsync = promisify(redisClient.get).bind(redisClient);
   try {
     const data = await getAsync(userId); // refresh token 가져오기
-    if (token === data) {
-      try {
-        jwt.verify(token, secret);
-        return true;
-      } catch (err) {
-        return false;
-      }
-    } else {
-      return false;
-    }
+    console.log(data);
+    next();
+    // if (token === data) {
+    //   try {
+    //     jwt.verify(token, secret);
+    //     return true;
+    //   } catch (err) {
+    //     return false;
+    //   }
+    // } else {
+    //   return false;
+    // }
   } catch (err) {
     return false;
   }

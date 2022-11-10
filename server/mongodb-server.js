@@ -34,9 +34,9 @@ db.mongoose
     useUnifiedTopology: true,
   })
   .then(() => {
-    console.log("db.url", db.url);
-    console.log("db.mongoose", db.mongoose);
-    console.log("db.tutorial.db", db.tutorial.db);
+    // console.log("db.url", db.url);
+    // console.log("db.mongoose", db.mongoose);
+    // console.log("db.tutorial.db", db.tutorial.db);
     console.log("Database Connection Success.");
   })
   .catch((err) => {
