@@ -1,6 +1,8 @@
 const jwt = require("jsonwebtoken");
 const db = require("../model/index.js");
 const User = db.user;
+const auth = require("../middleware/auth");
+const redisClient = require("../middleware/redis");
 
 // 회원가입
 exports.createUser = async (req, res) => {
@@ -35,28 +37,27 @@ exports.createUser = async (req, res) => {
 exports.loginUser = async (req, res) => {
   const user = req.body;
   const { id, pw } = user;
-  const key = process.env.SECRET_KEY;
-  let acess = "";
+
+  let access = "";
   let refresh = "";
+
   try {
     const user = User.findOne({ $and: [{ id: id }, { pw: pw }] }).exec(
-      (err, result) => {
+      async (err, result) => {
         if (result) {
-          acess = jwt.sign(
-            {
-              type: "JWT",
-              id: id,
-              pw: pw,
-            },
-            key,
-            {
-              expiresIn: "15m",
-              issuer: "sion",
-            }
-          );
-          res
-            .status(200)
-            .send({ user: result, token: { access: acess, refresh: refresh } });
+          // access, refresh 토큰 발급
+          refresh = await auth.refresh();
+          access = await auth.access();
+          // DB에 유저의 refresh 토큰 저장
+          // await User.findByIdAndUpdate(result._id, {
+          //   refreshtoken: refresh,
+          // });
+          // redisClient.set(result._id, refresh);
+          // 로그인 성공시 회원정보와 token 값 전달
+          res.status(200).send({
+            user: result,
+            token: { access: access, refresh: refresh },
+          });
         } else {
           res.status(404).send("Login Faliure");
         }

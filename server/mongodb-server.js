@@ -2,6 +2,7 @@ const dotenv = require("dotenv");
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
+const redis = require("redis");
 
 dotenv.config();
 const app = express();
