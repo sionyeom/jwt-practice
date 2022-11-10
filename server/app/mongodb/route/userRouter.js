@@ -2,6 +2,8 @@ const router = require("express").Router();
 const user = require("../controller/userController");
 const auth = require("../middleware/auth");
 const db = require("../model/index");
+const authJWT = require("../middleware/new_auth");
+
 const User = db.user;
 
 router.post("/", user.createUser);
@@ -16,8 +18,10 @@ router.get("/token/payload", auth.auth, (req, res) => {
     },
   });
 });
-router.get("/get/:id", auth.auth, (req, res) => {
+router.get("/get/:id", authJWT, (req, res) => {
   let { id } = req.params;
+
+  console.log(req.id);
 
   const user = User.findOne({ _id: id }).exec((err, user) => {
     // console.log(user);

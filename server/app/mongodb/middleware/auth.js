@@ -5,21 +5,6 @@ const redisClient = require("./redis");
 
 dotenv.config();
 
-exports.access = (_id) => {
-  const key = process.env.SECRET_KEY;
-  return jwt.sign(
-    {
-      type: "JWT",
-      id: _id,
-    },
-    key,
-    {
-      expiresIn: "15m",
-      issuer: "sion",
-    }
-  );
-};
-
 exports.auth = (req, res, next) => {
   const key = process.env.SECRET_KEY;
   // 인증 완료
@@ -59,28 +44,60 @@ exports.auth = (req, res, next) => {
   }
 };
 
+// access 생성
+exports.access = (_id) => {
+  const key = process.env.SECRET_KEY;
+  return jwt.sign(
+    {
+      type: "JWT",
+      id: _id,
+    },
+    key,
+    {
+      expiresIn: "15m",
+      issuer: "sion",
+    }
+  );
+};
+
+// access 검증
+exports.verify = (token) => {
+  let decoded = null;
+  try {
+    decoded = jwt.verify(token);
+    return {
+      ok: true,
+      id: decoded.id,
+    };
+  } catch (err) {
+    return {
+      ok: false,
+      message: err.message,
+    };
+  }
+};
+// refresh 생성
 exports.refresh = () => {
   const key = process.env.SECRET_KEY;
 
   return jwt.sign({}, key, { expiresIn: "20m", issuer: "sion" });
 };
 
+// refresh 검증
 exports.refreshVerify = async (token, userId, next) => {
   const getAsync = promisify(redisClient.get).bind(redisClient);
   try {
     const data = await getAsync(userId); // refresh token 가져오기
-    console.log(data);
-    next();
-    // if (token === data) {
-    //   try {
-    //     jwt.verify(token, secret);
-    //     return true;
-    //   } catch (err) {
-    //     return false;
-    //   }
-    // } else {
-    //   return false;
-    // }
+    if (token === data) {
+      try {
+        jwt.verify(token, secret);
+        return true;
+      } catch (err) {
+        return false;
+      }
+    } else {
+      return false;
+    }
   } catch (err) {
     return false;
   }
