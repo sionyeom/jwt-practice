@@ -45,12 +45,13 @@ exports.auth = (req, res, next) => {
 };
 
 // access 생성
-exports.access = (_id) => {
+exports.access = (_id, email) => {
   const key = process.env.SECRET_KEY;
   return jwt.sign(
     {
       type: "JWT",
       id: _id,
+      email: email,
     },
     key,
     {
@@ -62,9 +63,11 @@ exports.access = (_id) => {
 
 // access 검증
 exports.verify = (token) => {
+  const key = process.env.SECRET_KEY;
   let decoded = null;
+
   try {
-    decoded = jwt.verify(token);
+    decoded = jwt.verify(token, key);
     return {
       ok: true,
       id: decoded.id,
@@ -84,13 +87,14 @@ exports.refresh = () => {
 };
 
 // refresh 검증
-exports.refreshVerify = async (token, userId, next) => {
+exports.refreshVerify = async (token, email) => {
+  const key = process.env.SECRET_KEY;
   const getAsync = promisify(redisClient.get).bind(redisClient);
   try {
-    const data = await getAsync(userId); // refresh token 가져오기
+    const data = await getAsync(email);
     if (token === data) {
       try {
-        jwt.verify(token, secret);
+        jwt.verify(token, key);
         return true;
       } catch (err) {
         return false;

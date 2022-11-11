@@ -3,6 +3,7 @@ const user = require("../controller/userController");
 const auth = require("../middleware/auth");
 const db = require("../model/index");
 const authJWT = require("../middleware/new_auth");
+const fresh = require("../middleware/refresh");
 
 const User = db.user;
 
@@ -18,15 +19,17 @@ router.get("/token/payload", auth.auth, (req, res) => {
     },
   });
 });
+
 router.get("/get/:id", authJWT, (req, res) => {
   let { id } = req.params;
 
-  console.log(req.id);
-
-  const user = User.findOne({ _id: id }).exec((err, user) => {
-    // console.log(user);
-  });
+  // User.findOne({ _id: id }).exec((err, user) => {
+  //   // console.log(user);
+  // });
 
   return res.status(200).json({});
 });
+
+router.get("/refresh", fresh);
+
 module.exports = router;

@@ -42,12 +42,12 @@ exports.loginUser = async (req, res) => {
   let refresh = "";
 
   try {
-    const user = User.findOne({ $and: [{ id: id }, { pw: pw }] }).exec(
+    User.findOne({ $and: [{ id: id }, { pw: pw }] }).exec(
       async (err, result) => {
         if (result) {
           // access, refresh 토큰 발급
           refresh = await auth.refresh();
-          access = await auth.access();
+          access = await auth.access(result._id, result.email);
 
           // redis에서 유저의 이메일(key):refresh토큰(value)의 형태로 저장
           redisClient.set(result.email, refresh);
