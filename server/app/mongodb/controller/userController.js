@@ -46,8 +46,8 @@ exports.loginUser = async (req, res) => {
       async (err, result) => {
         if (result) {
           // access, refresh 토큰 발급
-          refresh = await auth.refresh();
-          access = await auth.access(result._id, result.email);
+          refresh = auth.refresh();
+          access = auth.access(result._id, result.email);
 
           // redis에서 유저의 이메일(key):refresh토큰(value)의 형태로 저장
           redisClient.set(result.email, refresh);
@@ -57,7 +57,8 @@ exports.loginUser = async (req, res) => {
             user: result,
             token: { access: access, refresh: refresh },
           });
-        } else {
+        }
+        if (err) {
           res.status(404).send("Login Faliure");
         }
       }

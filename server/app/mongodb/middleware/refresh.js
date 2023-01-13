@@ -20,7 +20,6 @@ const fresh = async (req, res) => {
     }
     // 유저의 이메일을 가져와서 검증
     const refreshResult = await auth.refreshVerify(refreshToken, decoded.email);
-    console.log(2);
 
     if (authResult.ok === false && authResult.message === "jwt expired") {
       // 1. access token 만료, refresh 만료 -> 새로 로그인
